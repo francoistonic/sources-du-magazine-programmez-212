@@ -1,0 +1,349 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fnil\fcharset0 Calibri;\f1\froman\fcharset0 TimesNewRomanPSMT;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab708
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i\fs24 \cf0 public class City \{\
+  private int x;\
+  private int y;\
+\
+  public City(int x, int y) \{\
+    this.x = x;\
+    this.y = y;\
+  \}\
+\
+  // Getters et Setters ...\
+\
+  // Calcul de la distance entre 2 villes\
+  public double distanceFrom(City city) \{\
+    double deltaXSq = Math.pow((city.getX() - getX()), 2);\
+    double deltaYSq = Math.pow((city.getY() - getY()), 2);\
+    double distance = Math.sqrt(Math.abs(deltaXSq + deltaYSq));\
+\
+    return distance;\
+  \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\i0\b \cf0 \
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\b0 \cf0 \
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public class Route \{\
+  private City route[];\
+  private double distance = 0;\
+\
+  // Cr\'e9ation de la route \'e0 partir de l'individu\
+  public Route(Individual individual, City cities[]) \{\
+    int chromosome[] = individual.getChromosome();\
+    route = new City[cities.length];\
+\
+    for (int geneIndex = 0; geneIndex < chromosome.length; geneIndex++) \{\
+      route[geneIndex] = cities[chromosome[geneIndex]];\
+    
+\f1 \}\
+
+\f0   \}\
+\
+  // Calcul de la distance totale
+\f1 \
+
+\f0   public double getDistance() \{\
+    if (distance > 0) \{\
+      return distance;\
+    \}\
+\
+    double totalDistance = 0;\
+\
+    for (int cityIndex = 0; cityIndex + 1 < route.length; cityIndex++) \{\
+      totalDistance += route[cityIndex].distanceFrom(route[cityIndex + 1]);\
+    \}\
+\
+    totalDistance += route[route.length - 1].distanceFrom(route[0]);\
+    distance = totalDistance;\
+\
+    return totalDistance;\
+  \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1\i0 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\b \cf0 \
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i\b0 \cf0 public class Individual \{\
+\
+  private int[] chromosome;\
+  private double fitness = -1;\
+\
+  public Individual(int chromosomeLength) \{\
+    int[] individual = new int[chromosomeLength];\
+\
+    for (int gene = 0; gene < chromosomeLength; gene++) \{\
+      individual[gene] = gene;\
+    \}\
+\
+    chromosome = individual;\
+  
+\f1 \}\
+\
+
+\f0   // Pr\'e9sence d'une ville donn\'e9e au sein des g\'e8nes du chromosome\
+  public boolean containsGene(int gene) \{\
+    for (int i = 0; i < chromosome.length; i++) \{\
+      if (chromosome[i] == gene) \{\
+        return true;\
+      
+\f1 \}\
+
+\f0     \}\
+	\
+    return false;\
+  \}\
+\
+  // Reste de la classe identique \'e0 la premi\'e8re partie de l'article ...\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\i0\b \cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i\b0 \cf0 public boolean isTerminationConditionMet(int generationsCount, int maxGenerations) \{\
+  return (generationsCount > maxGenerations);\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\i0 \cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public double calcFitness(Individual individual, City cities[])\{\
+  Route route = new Route(individual, cities);\
+  double fitness = 1 / route.getDistance();\
+	\
+  // Stockage de la valeur d'adaptabilit\'e9 pour une route donn\'e9e
+\f1 \
+
+\f0   individual.setFitness(fitness);\
+\
+  return fitness;\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\i0 \cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public void evalPopulation(Population population, City cities[])\{\
+  double populationFitness = 0;\
+\
+  for(Individual individual : population.getIndividuals()) \{\
+    populationFitness += calcFitness(individual, cities);\
+  \}\
+\
+  double avgFitness = populationFitness / population.size();\
+  population.setPopulationFitness(avgFitness);\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1\i0 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+\cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public Individual selectParent(Population population) \{
+\f1 \
+
+\f0   // Tournoi de s\'e9lection
+\f1 \
+
+\f0   Population tournament = new Population(tournamentSize);\
+  // Brassage de la population actuelle\
+  population.shuffle();\
+\
+  for (int i = 0; i < tournamentSize; i++) \{\
+    Individual tournamentIndividual = population.getIndividual(i);\
+    tournament.setIndividual(i, tournamentIndividual);\
+  \}\
+\
+  // On renvoie le plus prometteur\
+  return tournament.getFittest(0);\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\i0 \cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public Population crossoverPopulation(Population population)\{\
+  Population newPopulation = new Population(population.size());\
+\
+  for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) \{\
+    // Parent 1\
+    Individual parent1 = population.getFittest(populationIndex);\
+\
+    // Crit\'e8re d'application du crossover\
+    if (crossoverRate > Math.random() && populationIndex >= elitismCount) \{\
+      // S\'e9lection du parent 2 via tournoi de s\'e9lection\
+      Individual parent2 = selectParent(population);\
+\
+      // Cr\'e9ation du nouvel individu\
+      int offspringChromosome[] = new int[parent1.getChromosomeLength()];\
+      Arrays.fill(offspringChromosome, -1);\
+      Individual offspring = new Individual(offspringChromosome);\
+\
+      // Pr\'e9paration des index
+\f1 \
+
+\f0       int substrPos1 = (int) (Math.random() * parent1.getChromosomeLength());\
+      int substrPos2 = (int) (Math.random() * parent1.getChromosomeLength());\
+\
+      final int startSubstr = Math.min(substrPos1, substrPos2);\
+      final int endSubstr = Math.max(substrPos1, substrPos2);\
+\
+      // Copie de la partie centrale du parent 1 sur le nouvel individu\
+      for (int i = startSubstr; i < endSubstr; i++) \{\
+        offspring.setGene(i, parent1.getGene(i));\
+      
+\f1 \}\
+\
+
+\f0       // Parcours des g\'e8nes du parent 2\
+      for (int i = 0; i < parent2.getChromosomeLength(); i++) \{\
+        int parent2Gene = i + endSubstr;\
+\
+        if (parent2Gene >= parent2.getChromosomeLength()) \{\
+          parent2Gene -= parent2.getChromosomeLength();\
+        \}\
+\
+        // Si l'individu n'a pas la ville, on l'ajoute\
+        if (!offspring.containsGene(parent2.getGene(parent2Gene))) \{\
+          // On cherche la position de rechange\
+          for (int ii = 0; ii < offspring.getChromosomeLength(); ii++) \{\
+            if (offspring.getGene(ii) == -1) \{\
+              offspring.setGene(ii, parent2.getGene(parent2Gene));\
+              break;\
+            \}\
+          \}\
+        \}\
+      \}\
+\
+      newPopulation.setIndividual(populationIndex, offspring);\
+    \} else \{\
+      newPopulation.setIndividual(populationIndex, parent1);\
+    \}\
+  \}\
+\
+  return newPopulation;\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1\i0 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+\cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i \cf0 public Population mutatePopulation(Population population)\{\
+  Population newPopulation = new Population(populationSize);\
+\
+  for (int populationIndex = 0; populationIndex < population.size(); populationIndex++) \{\
+    Individual individual = population.getFittest(populationIndex);\
+\
+    // On pr\'e9serve les individus \'e9lites
+\f1 \
+
+\f0     if (populationIndex >= elitismCount) \{   \
+      for (int geneIndex = 0; geneIndex < individual.getChromosomeLength(); geneIndex++) \{   \
+        // Crit\'e8re d'application de la mutation\
+        if (mutationRate > Math.random()) \{\
+          // Position d'\'e9change pour la mutation\
+          int newGenePos = (int) (Math.random() * individual.getChromosomeLength());\
+          // Echange\
+          int gene1 = individual.getGene(newGenePos);\
+          int gene2 = individual.getGene(geneIndex);\
+          individual.setGene(geneIndex, gene1);\
+          individual.setGene(newGenePos, gene2);\
+        
+\f1 \}\
+
+\f0       \}\
+    \}\
+\
+    newPopulation.setIndividual(populationIndex, individual);\
+  \}\
+\
+  return newPopulation;\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1\i0 \cf0 \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\b \cf0 \
+\
+\pard\pardeftab708\ri-52\sl276\slmult1\qj
+
+\f0\i\b0 \cf0 public class PbVoyageurDeCommerce \{\
+\
+  public static int MAX_GENERATIONS = 10000;\
+\
+  public static void main(String[] args) \{\
+    // Cr\'e9ation des villes avec leurs coordonn\'e9es cart\'e9siennes sur une grille de 100 par 100\
+    int numCities = 100;\
+    City cities[] = new City[numCities];\
+\
+    for (int cityIndex = 0; cityIndex < numCities; cityIndex++) \{\
+      int xPos = (int) (100 * Math.random());\
+      int yPos = (int) (100 * Math.random());\
+      cities[cityIndex] = new City(xPos, yPos);\
+    \}\
+\
+    // Cr\'e9ation instance de GeneticAlgorithm\
+    GeneticAlgorithm ga = new GeneticAlgorithm(100, 0.001, 0.9, 2, 5);\
+    // Init Population\
+    Population population = ga.initPopulation(cities.length);\
+    // Premi\'e8re Evaluation\
+    ga.evalPopulation(population, cities);\
+\
+    Route startRoute = new Route(population.getFittest(0), cities);\
+    System.out.println("Distance meilleure route initiale : " + startRoute.getDistance());\
+\
+    int generation = 1;\
+\
+    // Boucle de cr\'e9ation de g\'e9n\'e9rations\
+    while (!ga.isTerminationConditionMet(generation, MAX_GENERATIONS)) \{\
+      // Meilleure route apr\'e8s n g\'e9n\'e9rations\
+      Route route = new Route(population.getFittest(0), cities);\
+      System.out.println("Distance meilleure route G\'e9n\'e9ration " + generation + " : " + route.getDistance());\
+\
+      population = ga.crossoverPopulation(population);\
+      population = ga.mutatePopulation(population);\
+      ga.evalPopulation(population, cities);\
+\
+      generation++;\
+    \}\
+\
+    System.out.println("Arr\'eat de la recherche apr\'e8s " + MAX_GENERATIONS + " g\'e9n\'e9rations.");\
+    Route route = new Route(population.getFittest(0), cities);\
+    System.out.println("Distance meilleure route : " + route.getDistance());\
+  \}\
+\pard\pardeftab708\ri-52\sl276\slmult1\sa200\qj
+
+\f1 \cf0 \}\
+\
+}

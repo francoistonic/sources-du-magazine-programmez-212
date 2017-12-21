@@ -1,0 +1,225 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fnil\fcharset0 Consolas;\f1\fnil\fcharset0 Calibri;}
+{\colortbl;\red255\green255\blue255;\red43\green145\blue175;\red111\green0\blue138;\red163\green21\blue21;
+\red128\green128\blue128;\red0\green0\blue255;\red0\green128\blue128;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab708
+\pard\pardeftab708\ri-340
+
+\f0\fs19 \cf0 \
+    utility::\cf2 string_t\cf0  port = \cf3 U\cf0 (\cf4 "34568"\cf0 );\
+    utility::\cf2 string_t\cf0  address = \cf3 U\cf0 (\cf4 "http://localhost:"\cf0 );\
+    address.append(port);\
+\
+    \cf2 uri_builder\cf0  uri(\cf5 port\cf0 );\
+    uri.append_path(\cf3 U\cf0 (\cf4 "MyServer/Action/"\cf0 ));\
+\
+    \cf6 auto\cf0  addr = uri.to_uri().to_string();\
+    g_http \cf7 =\cf0  std::\cf2 unique_ptr\cf0 <\cf2 MyServer\cf0 >(\cf6 new\cf0  \cf2 MyServer\cf0 (addr));\
+    g_http\cf7 ->\cf0 open().wait();\
+    \
+    \cf3 ucout\cf0  \cf7 <<\cf0  utility::\cf2 string_t\cf0 (\cf3 U\cf0 (\cf4 "Listening for requests at: "\cf0 )) \cf7 <<\cf0  addr \cf7 <<\cf0  std::endl;\
+\
+\pard\pardeftab708\ri-340
+
+\f1\fs20 \cf0 \
+\
+\pard\pardeftab708\ri-340
+
+\f0\fs19 \cf6 void\cf0  \cf2 MyServer\cf0 ::handle_get(\cf2 http_request\cf0  \cf5 message\cf0 )\
+\{\
+	\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Message"\cf0 ) \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 )\
+		\cf7 <<\cf0  \cf5 message\cf0 .to_string() \cf7 <<\cf0  endl;\
+\
+	\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Relative URI"\cf0 ) \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 )\
+		\cf7 <<\cf0  \cf5 message\cf0 .relative_uri().to_string() \cf7 <<\cf0  endl;\
+\
+	\cf6 auto\cf0  paths = \cf2 uri\cf0 ::split_path(\cf2 uri\cf0 ::decode(\cf5 message\cf0 .relative_uri().path()));\
+	\cf6 for\cf0  (\cf6 auto\cf0  it1 = paths.begin(); it1 \cf7 !=\cf0  paths.end(); it1\cf7 ++\cf0 )\
+	\{\
+		\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Path"\cf0 ) \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 )\
+			\cf7 <<\cf0  \cf7 *\cf0 it1 \cf7 <<\cf0  endl;\
+	\}\
+\
+	\cf6 auto\cf0  query = \cf2 uri\cf0 ::split_query(\cf2 uri\cf0 ::decode(\cf5 message\cf0 .relative_uri().query()));\
+	\cf6 for\cf0  (\cf6 auto\cf0  it2 = query.begin(); it2 \cf7 !=\cf0  query.end(); it2\cf7 ++\cf0 )\
+	\{\
+		\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Query"\cf0 ) \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 )\
+			\cf7 <<\cf0  it2\cf7 ->\cf0 first \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 ) \cf7 <<\cf0  it2\cf7 ->\cf0 second \cf7 <<\cf0  endl;\
+	\}\
+\
+	\cf6 auto\cf0  queryItr = query.find(\cf3 U\cf0 (\cf4 "request"\cf0 ));\
+	utility::\cf2 string_t\cf0  request = queryItr\cf7 ->\cf0 second;\
+	\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Request"\cf0 ) \cf7 <<\cf0  \cf3 U\cf0 (\cf4 " "\cf0 ) \cf7 <<\cf0  request \cf7 <<\cf0  endl;\
+\
+	\cf6 if\cf0  (request \cf7 ==\cf0  \cf3 U\cf0 (\cf4 "get_developers"\cf0 ))\
+	\{\
+		\cf2 Data\cf0  data;\
+		data.job \cf7 =\cf0  \cf3 U\cf0 (\cf4 "Developers"\cf0 );\
+		\cf2 People\cf0  p1;\
+		p1.age = 25;\
+		p1.name \cf7 =\cf0  \cf3 U\cf0 (\cf4 "Franck"\cf0 );\
+		data.peoples.push_back(p1);\
+		\cf2 People\cf0  p2;\
+		p2.age = 20;\
+		p2.name \cf7 =\cf0  \cf3 U\cf0 (\cf4 "Joe"\cf0 );\
+		data.peoples.push_back(p2);\
+\
+		utility::\cf2 string_t\cf0  response = data.AsJSON().serialize();\
+		\cf3 ucout\cf0  \cf7 <<\cf0  response \cf7 <<\cf0  endl;\
+\
+		\cf5 message\cf0 .reply(\cf2 status_codes\cf0 ::OK, data.AsJSON());\
+		\cf6 return\cf0 ;\
+	\}\
+\
+	\cf5 message\cf0 .reply(\cf2 status_codes\cf0 ::OK);\
+\};\
+\pard\pardeftab708\ri-340\sl259\slmult1\sa160
+
+\f1\fs20 \cf0 \
+\
+\
+\
+\pard\pardeftab708\ri-340
+
+\f0\fs19 \cf6 struct\cf0  \cf2 People\cf0 \
+\{\
+	utility::\cf2 string_t\cf0  name;\
+	\cf6 double\cf0  age;\
+\
+	\cf6 static\cf0  \cf2 People\cf0  FromJSON(\cf6 const\cf0  web::json::\cf2 object\cf0  & \cf5 object\cf0 )\
+	\{\
+		\cf2 People\cf0  result;\
+		result.name \cf7 =\cf0  \cf5 object\cf0 .at(\cf3 U\cf0 (\cf4 "name"\cf0 )).as_string();\
+		result.age = \cf5 object\cf0 .at(\cf3 U\cf0 (\cf4 "age"\cf0 )).as_integer();\
+		\cf6 return\cf0  result;\
+	\}\
+\
+	web::json::\cf2 value\cf0  AsJSON() \cf6 const\cf0 \
+	\{\
+		web::json::\cf2 value\cf0  result = web::json::\cf2 value\cf0 ::object();\
+		result\cf7 [\cf3 U\cf0 (\cf4 "name"\cf0 )\cf7 ]\cf0  \cf7 =\cf0  web::json::\cf2 value\cf0 ::string(name);\
+		result\cf7 [\cf3 U\cf0 (\cf4 "age"\cf0 )\cf7 ]\cf0  \cf7 =\cf0  web::json::\cf2 value\cf0 ::number(age);\
+		\cf6 return\cf0  result;\
+	\}\
+\};\
+\pard\pardeftab708\ri-340\sl259\slmult1\sa160
+
+\f1\fs20 \cf0 \
+\pard\pardeftab708\ri-340
+\cf0 \
+\pard\pardeftab708\ri-340
+
+\f0\fs19 \cf6 struct\cf0  \cf2 Data\cf0 \
+\{\
+	std::\cf2 vector\cf0 <\cf2 People\cf0 > peoples;\
+	utility::\cf2 string_t\cf0  job;\
+\
+	Data() \{\}\
+\
+	\cf6 void\cf0  Clear() \{ peoples.clear(); \}\
+\
+	\cf6 static\cf0  \cf2 Data\cf0  FromJSON(\cf6 const\cf0  web::json::\cf2 object\cf0  &\cf5 object\cf0 )\
+	\{\
+		\cf2 Data\cf0  res;\
+\
+		web::json::\cf2 value\cf0  job = \cf5 object\cf0 .at(\cf3 U\cf0 (\cf4 "job"\cf0 ));\
+		res.job \cf7 =\cf0  job.as_string();\
+\
+		web::json::\cf2 value\cf0  p = \cf5 object\cf0 .at(\cf3 U\cf0 (\cf4 "people"\cf0 ));\
+		\cf6 for\cf0  (\cf6 auto\cf0  iter = p.as_array().begin(); iter \cf7 !=\cf0  p.as_array().end(); \cf7 ++\cf0 iter)\
+		\{\
+			\cf6 if\cf0  (!iter\cf7 ->\cf0 is_null())\
+			\{\
+				\cf2 People\cf0  people;\
+				people \cf7 =\cf0  \cf2 People\cf0 ::FromJSON(iter\cf7 ->\cf0 as_object());\
+				res.peoples.push_back(people);\
+			\}\
+		\}\
+\
+		\cf6 return\cf0  res;\
+	\}\
+\
+	web::json::\cf2 value\cf0  AsJSON() \cf6 const\cf0 \
+	\{\
+		web::json::\cf2 value\cf0  res = web::json::\cf2 value\cf0 ::object();\
+		res\cf7 [\cf3 U\cf0 (\cf4 "job"\cf0 )\cf7 ]\cf0  \cf7 =\cf0  web::json::\cf2 value\cf0 ::string(job);\
+\
+		web::json::\cf2 value\cf0  jPeoples = web::json::\cf2 value\cf0 ::array(peoples.size());\
+\
+		\cf6 int\cf0  idx = 0;\
+		\cf6 for\cf0  (\cf6 auto\cf0  iter = peoples.begin(); iter \cf7 !=\cf0  peoples.end(); iter\cf7 ++\cf0 )\
+		\{\
+			jPeoples\cf7 [\cf0 idx++\cf7 ]\cf0  \cf7 =\cf0  iter\cf7 ->\cf0 AsJSON();\
+		\}\
+\
+		res\cf7 [\cf3 U\cf0 (\cf4 "people"\cf0 )\cf7 ]\cf0  \cf7 =\cf0  jPeoples;\
+		\cf6 return\cf0  res;\
+	\}\
+\};\
+\
+\pard\pardeftab708\ri-340
+
+\f1\fs20 \cf0 \
+\
+\pard\pardeftab708\ri-340
+
+\f0\fs19 \cf5 #ifdef\cf0  \cf3 _WIN32\cf0 \
+\cf5 # define\cf0  \cf3 iequals\cf0 (x, y) (_stricmp((x), (y))==0)\
+\cf5 #else\cf0 \
+\cf5 # define\cf0  iequals(x, y) boost::iequals((x), (y))\
+\cf5 #endif\cf0 \
+\
+\pard\pardeftab708\ri-340
+\cf6 int\cf0  wmain(\cf6 int\cf0  \cf5 argc\cf0 , \cf6 wchar_t\cf0  *\cf5 argv\cf0 [])\
+\{\
+    utility::\cf2 string_t\cf0  port = \cf3 U\cf0 (\cf4 "34568"\cf0 );\
+    \cf6 if\cf0 (\cf5 argc\cf0  == 2)\
+    \{\
+        port \cf7 =\cf0  \cf5 argv\cf0 [1];\
+    \}\
+\
+    utility::\cf2 string_t\cf0  address = \cf3 U\cf0 (\cf4 "http://localhost:"\cf0 );\
+    address.append(port);\
+    http::\cf2 uri\cf0  uri = http::\cf2 uri\cf0 (address);\
+\
+	\cf2 http_client\cf0  client(http::\cf2 uri_builder\cf0 (uri)\
+		.append_path(\cf3 U\cf0 (\cf4 "/MyServer/Action/"\cf0 )).to_uri());\
+\
+    \cf6 while\cf0  (\cf6 true\cf0 )\
+    \{\
+        std::\cf2 string\cf0  method;\
+        \cf3 ucout\cf0  \cf7 <<\cf0  \cf4 "Enter method:"\cf0 ;\
+        cin \cf7 >>\cf0  method;\
+\
+		\cf2 http_response\cf0  response;\
+\
+		\cf6 if\cf0  (\cf3 iequals\cf0 (method.c_str(), \cf4 "get_developers"\cf0 ))\
+		\{\
+			utility::\cf2 ostringstream_t\cf0  buf;\
+			buf \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "?request="\cf0 ) \
+				\cf7 <<\cf0  utility::conversions::to_string_t(method) \
+				\cf7 <<\cf0  \cf3 U\cf0 (\cf4 "&city=Paris"\cf0 );\
+			\
+			response \cf7 =\cf0  client.request(\cf2 methods\cf0 ::GET, buf.str()).get();\
+\
+			\cf3 ucout\cf0  \cf7 <<\cf0  \cf3 U\cf0 (\cf4 "Response "\cf0 ) \cf7 <<\cf0  response.to_string() \cf7 <<\cf0  endl;\
+\
+			json::\cf2 value\cf0  jdata = json::\cf2 value\cf0 ::array();\
+			jdata \cf7 =\cf0  response.extract_json().get();\
+			\cf2 Data\cf0  data = \cf2 Data\cf0 ::FromJSON(jdata.as_object());\
+		\}\
+        \cf6 else\cf0 \
+        \{\
+            \cf3 ucout\cf0  \cf7 <<\cf0  utility::conversions::to_string_t(method) \
+				\cf7 <<\cf0  \cf4 ": not understood\\n"\cf0 ;\
+        \}\
+    \}\
+\
+    \cf6 return\cf0  0;\
+\}\
+\
+\pard\pardeftab708\ri-340
+
+\f1\fs20 \cf0 \
+}
